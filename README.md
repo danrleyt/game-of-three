@@ -29,16 +29,9 @@ More details on the Match can be found (here)[https://github.com/danrleyt/game-o
 ### POST
 
 CREATES A MATCH [/api/matches](#post-apimatches) <br/>
-ADDS PLAYER TO MATCH [/api/matches/players](#post-apimatches) <br/>
-START A MATCH [/api/matches/:matchId](#post-apimatches) <br/>
-PERFORM AN OPERATION [/api/matches/:matchId/operations](#post-apimatches) <br/>
-
-### POST
-
-CREATES A MATCH [/api/matches](#/api/matches)
-ADDS PLAYER TO MATCH [/api/matches/players](#/)
-START A MATCH [/api/matches/:matchId]()
-PERFORM AN OPERATION [/api/matches/:matchId/operations]()
+ADDS PLAYER TO MATCH [/api/matches/players](#post-apimatchesplayers) <br/>
+START A MATCH [/api/matches/:matchId](#post-apimatchesmatchid) <br/>
+PERFORM AN OPERATION [/api/matches/:matchId/operations](#post-apimatchesmatchidoperations) <br/>
 
 #### POST /api/matches
 
@@ -82,7 +75,7 @@ Receives a player and looks for a match where there are still a spot to include 
   }
 ```
 
-#### POST /matches/:matchId
+#### POST /api/matches/:matchId
 
 Receives a number and player and start the match
 
@@ -110,7 +103,7 @@ Receives a number and player and start the match
   }
 ```
 
-#### POST /matches/:matchId/operations
+#### POST /api/matches/:matchId/operations
 
 Gets an operation and player and performs the operation in the match in addition it emits an event to all connected players to the match informing the operation it can also disconnect all players if the operation results in a match ended
 
