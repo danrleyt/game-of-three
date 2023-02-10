@@ -1,6 +1,12 @@
 # Game of Three
 
-This repo has an implementation of the Game of Three, and it exposes it through a REST API and uses Web Sockets to real time messaging
+This repo has an implementation of the Game of Three, and it exposes it through a REST API and uses Web Sockets to real time messaging.
+
+## How to set up the project on your local
+
+1. Install dependencies ```yarn install```
+2. Start the server ```yarn dev```
+3. Open a browser window and input the URL ```http://localhost:8080/index.html```
 
 ## How does it work? 
 
@@ -13,6 +19,16 @@ This repo has an implementation of the Game of Three, and it exposes it through 
 7. The two players play each turn until the match ends.
 
 [DEMO](https://user-images.githubusercontent.com/6784789/218100366-16e8f203-c07d-4dce-bb9c-1a6a78bc968a.webm)
+
+Here is a small representation of how the services communicate
+
+![Diagram](https://user-images.githubusercontent.com/6784789/218115105-2e194c60-041b-491b-af24-8288cdc210b8.png)
+
+### Structure 
+
+Here we can find a generic representation of how the server is structured.
+
+![Structure](https://user-images.githubusercontent.com/6784789/218116229-911fd767-a3ba-4f18-b441-57ea72f9c1b2.png)
 
 ## Match
 
@@ -194,3 +210,13 @@ The Match has ended
 Connection got disconnected
 
 ## TODOs
+
+While doing this API I found out that there are many improvements and fixes to be made. Here are some of them:
+
+1. Support client to emit events through their socket connections
+2. Separate the socket into a module
+3. Add exception when matchId is already being used
+4. Add event listener to when player disconnects
+5. add support to an actual database
+
+In the code you may find more todos
