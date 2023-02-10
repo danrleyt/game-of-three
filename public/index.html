@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+    <script
+      src="https://cdn.socket.io/4.6.0/socket.io.min.js"
+      integrity="sha384-c79GN5VsunZvi+Q/WObgk2in0CbZsHnjEqvFxC5DxHn9lTfNce2WW6h2pH6u/kF+"
+      crossorigin="anonymous"
+    ></script>
+  </head>
+  <body>
+    <div class="container">
+      <h3
+        id="displaynickname"
+        style="text-align: center; margin-top: 20px"
+      ></h3>
+      <div id="nickinput" style="margin-top: 20%; text-align: center">
+        <h3>Hello, what is your nickname?</h3>
+        <input id="nickname" placeholder="type in your nickname" />
+        <button id="saveNickname">Save</button>
+      </div>
+
+      <div id="createorfind" style="margin-top: 20%; text-align: center" hidden>
+        <h3 id="tryagaintext">Create or Find a Match</h3>
+        <button id="createbtn">Create a Match</button>
+        <button id="findbtn">Find a Match</button>
+      </div>
+
+      <div id="creatematch" style="margin-top: 20%; text-align: center" hidden>
+        <h3>Create a match</h3>
+        <input id="matchId" placeholder="type the name of your match" />
+        <button id="creatematchbtn">Create</button>
+      </div>
+
+      <div id="matchstart" style="margin-top: 20%; text-align: center" hidden>
+        <h3 id="matchstatus"></h3>
+        <p id="turnis"></p>
+        <div id="log"></div>
+        <button id="automate">Automate</button>
+        <br />
+        <input type="number" id="number" />
+        <button id="start">Start</button>
+        <button id="sendoperation">Send operation</button>
+      </div>
+    </div>
+    <script>
+      let nickname = "";
+      let matchId = "";
+      var io;
+      let isAutomated = false;
+
+      $("#saveNickname").click(() => {
+        nickname = $("#nickname").val();
+        $("#nickinput").hide();
+        $("#createorfind").removeAttr("hidden");
+        $("#displaynickname").text(nickname);
+        console.log(nickname);
+      });
+
+      $("#createbtn").click(() => {
+        $("#createorfind").hide();
+        $("#creatematch").removeAttr("hidden");
+      });
+
+      $("#findbtn").click(() => {
+        $.ajax("http://localhost:8080/api/matches/players", {
+          type: "POST",
+          contentType: "application/json",
+          data: JSON.stringify({ player: { nickname: nickname } }),
+          success: (data) => {
+            console.log(data);
+            matchId = data.matchId;
+            io = io("http://localhost:8080", {
+              query: `matchId=${data.matchId}`,
+            });
+            $("#matchstatus").text(data.matchStatus);
+            $("#start").hide();
+            $("#createorfind").hide();
+            $("#matchstart").removeAttr("hidden");
+            addListeners();
+          },
+          error: (data) => {
+            $("#tryagaintext").text("No matches founds... please try again");
+            $("#findbtn").text("Try again");
+          },
+        });
+      });
+
+      $("#creatematchbtn").click(() => {
+        matchId = $("#matchId").val();
+        const data = { player: { nickname }, matchId: matchId };
+        console.log("data: ", data);
+        $.ajax("http://localhost:8080/api/matches", {
+          type: "POST",
+          contentType: "application/json",
+          data: JSON.stringify(data),
+          success: (data) => {
+            matchId = data.matchId;
+            console.log(data);
+            io = io("http://localhost:8080", {
+              query: `matchId=${data.matchId}`,
+            });
+            $("#sendoperation").hide();
+            $("#matchstatus").text(data.matchStatus);
+            $("#creatematch").hide();
+            $("#automate").hide();
+            $("#matchstart").removeAttr("hidden");
+            addListeners();
+          },
+          error: (error) => {
+            alert(error.responseJSON.message);
+          },
+        });
+      });
+
+      $("#start").click(() => {
+        $.ajax(`http://localhost:8080/api/matches/${matchId}`, {
+          type: "POST",
+          contentType: "application/json",
+          data: JSON.stringify({
+            player: { nickname: nickname },
+            number: parseInt($("#number").val()),
+          }),
+          success: () => {
+            $("#sendoperation").show();
+            $("#start").hide();
+          },
+          error: (err) => alert(err.responseJSON.message),
+        });
+      });
+
+      function sendOperation(nickname, operation) {
+        let data = { player: { nickname: nickname }, operation: operation };
+        if (isAutomated) {
+          const arr = [-1, 0, 1];
+          data.operation = arr[Math.floor(Math.random() * arr.length)];
+        }
+        $.ajax(`http://localhost:8080/api/matches/${matchId}/operations`, {
+          type: "POST",
+          contentType: "application/json",
+          data: JSON.stringify(data),
+          error: (error) => {
+            alert(error.responseJSON.message);
+          },
+        });
+      }
+
+      $("#sendoperation").click(() => {
+        sendOperation(nickname, parseInt($("#number").val()));
+      });
+
+      $("#automate").click(() => {
+        isAutomated = true;
+        $("#number").hide();
+        $("#sendoperation").hide();
+      });
+
+      function addListeners() {
+        io.on("new player", (data) => {
+          const matchStatus = data.matchStatus;
+          $("#matchstatus").text(matchStatus);
+        });
+
+        io.on("started", (data) => {
+          const matchStatus = data.matchStatus;
+          $("#turnis").text(`It's ${data.whosTurn.nickname}'s turn`);
+          $("#matchstatus").text(matchStatus);
+          const p = document.createElement("p");
+          p.innerHTML = `The initial number is ${data.currentNumber}`;
+          $("#log").append(p);
+
+          if (isAutomated && nickname === data.whosTurn.nickname) {
+            sendOperation(nickname);
+          }
+          console.log("matchStarted", data);
+        });
+
+        io.on("operation", (data) => {
+          const p = document.createElement("p");
+          $("#turnis").text(`It's ${data.whosTurn.nickname}'s turn`);
+          p.innerHTML = `Player: ${data.log.player.nickname} operated by ${data.log.operation} the number now is <b>${data.log.numberAfterOperation}</b>`;
+          $("#log").append(p);
+          if (isAutomated && data.whosTurn.nickname == nickname) {
+            sendOperation(nickname);
+          }
+          console.log("new operation", data);
+        });
+
+        io.on("end", (data) => {
+          const p = document.createElement("p");
+          if (data.winner !== undefined) {
+            p.innerHTML = `${data.winner.nickname} is the Winner!`;
+          } else {
+            p.innerHTML = "There was no winner";
+          }
+          $("#log").append(p);
+          io.disconnect();
+          alert("The match ended");
+          console.log(data);
+        });
+
+        io.on("disconnect", (data) => {
+          console.log("got disconnected");
+        });
+      }
+    </script>
+  </body>
+</html>

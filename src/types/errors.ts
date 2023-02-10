@@ -1,0 +1,20 @@
+/**
+ * Custom Error Class 
+ * that I use here to guarantee a message and statusCode on Error
+ *
+ * @class
+ */
+class AppError extends Error {
+    public statusCode: number
+
+    constructor(statusCode:number, message:string, stack = '') {
+        super(message)
+        this.statusCode = statusCode
+        if (stack) {
+            this.stack = stack
+        } else {
+            Error.captureStackTrace(this, this.constructor)
+        }
+    }
+}
+export default AppError
