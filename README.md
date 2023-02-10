@@ -22,9 +22,29 @@ A Match has the following statuses which represents its state.
 
 ![Match state drawio](https://user-images.githubusercontent.com/6784789/218102355-dff73fb0-2473-4f4d-aaff-7e5ce99d7eb7.png)
 
+More details on the Match can be found (here)[https://github.com/danrleyt/game-of-three/blob/main/src/types/match.ts]
 
 ## Endpoints
 
-## Socket Connection events
+### POST
+
+CREATES A MATCH [/api/matches](#/api/matches)
+ADDS PLAYER TO MATCH [/api/matches/players]()
+START A MATCH [/api/matches/:matchId]()
+PERFORM AN OPERATION [/api/matches/:matchId/operations]()
+
+#### POST /api/matches
+
+Creates a match and return its id, status and message in addition it adds the match created to the in memory storage of the Match
+ 
+**Parameters**
+
+| Name | Required |  Type   | Description                                                                                                                                                           |
+| -------------:|:--------:|:-------:| --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `player` | required | Player  | an Object with a field `nickname` representing the player |
+| `matchId` | required | string  | Id of the match |
+
+
+## Socket Connection Events
 
 ## TODOs
