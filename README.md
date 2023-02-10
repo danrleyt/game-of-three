@@ -20,6 +20,7 @@ A Match is a representation to a match between two players.
 
 A Match has the following statuses which represents its state. 
 
+![Match state drawio](https://user-images.githubusercontent.com/6784789/218102355-dff73fb0-2473-4f4d-aaff-7e5ce99d7eb7.png)
 
 
 ## Endpoints
