@@ -12,6 +12,9 @@ This repo has an implementation of the Game of Three, and it exposes it through 
 6. Player Two receives a message with the number and it is now able to send an operation;
 7. The two players play each turn until the match ends.
 
+[DEMO](https://user-images.githubusercontent.com/6784789/218100366-16e8f203-c07d-4dce-bb9c-1a6a78bc968a.webm)
+
+
 ## Match 
 
 ## Endpoints
