@@ -28,8 +28,15 @@ More details on the Match can be found (here)[https://github.com/danrleyt/game-o
 
 ### POST
 
+CREATES A MATCH [/api/matches](#post-apimatches) <br/>
+ADDS PLAYER TO MATCH [/api/matches/players](#post-apimatches) <br/>
+START A MATCH [/api/matches/:matchId](#post-apimatches) <br/>
+PERFORM AN OPERATION [/api/matches/:matchId/operations](#post-apimatches) <br/>
+
+### POST
+
 CREATES A MATCH [/api/matches](#/api/matches)
-ADDS PLAYER TO MATCH [/api/matches/players]()
+ADDS PLAYER TO MATCH [/api/matches/players](#/)
 START A MATCH [/api/matches/:matchId]()
 PERFORM AN OPERATION [/api/matches/:matchId/operations]()
 
@@ -45,6 +52,152 @@ Creates a match and return its id, status and message in addition it adds the ma
 | `matchId` | required | string  | Id of the match |
 
 
+**Response** 
+
+```
+  {
+    matchId: matchId,
+    matchStatus: 'Waiting for Players',
+    message: 'Match created successfully'
+  }
+```
+
+#### POST /api/matches/players
+
+Receives a player and looks for a match where there are still a spot to include a new player
+ 
+**Parameters**
+
+| Name | Required |  Type   | Description                                                                                                                                                           |
+| -------------:|:--------:|:-------:| --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `player` | required | Player  | an Object with a field `nickname` representing the player |
+
+
+**Response** 
+
+```
+  {
+    matchId: matchId,
+    matchStatus: 'Ready to Start',
+  }
+```
+
+#### POST /matches/:matchId
+
+Receives a number and player and start the match
+
+**URL Parameters**
+| Name | Required |  Type   | Description                                                                                                                                                           |
+| -------------:|:--------:|:-------:| --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `matchId` | required | string  | Id of the match |
+ 
+**Parameters**
+
+| Name | Required |  Type   | Description                                                                                                                                                           |
+| -------------:|:--------:|:-------:| --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `player` | required | Player  | an Object with a field `nickname` representing the player |
+| `number` | required | number  | an intenger that will be initial number of the match |
+
+
+**Response** 
+
+```
+  {
+    matchId: matchId,
+    currentNumber: match.currentNumber,
+    matchStatus: match.status,
+    whosTurn: matchNextPlayer
+  }
+```
+
+#### POST /matches/:matchId/operations
+
+Gets an operation and player and performs the operation in the match in addition it emits an event to all connected players to the match informing the operation it can also disconnect all players if the operation results in a match ended
+
+**URL Parameters**
+| Name | Required |  Type   | Description                                                                                                                                                           |
+| -------------:|:--------:|:-------:| --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `matchId` | required | string  | Id of the match |
+ 
+**Parameters**
+
+| Name | Required |  Type   | Description                                                                                                                                                           |
+| -------------:|:--------:|:-------:| --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `player` | required | Player  | an Object with a field `nickname` representing the player |
+| `operation` | required | number  | a number that can only be -1, 0 or 1 that will be used as operation|
+
+
+**Response** 
+
+```
+  {
+    whosTurn: matchNextPlayer,
+    currentNumber: match.currentNumber,
+    log: MatchLog
+  }
+```
+
 ## Socket Connection Events
+
+After creating a match successfully, the client is requested to open an connection with the server (see example)[]. To get the real time match details the socket will have to listen to certain events. The following are the events emitted by the server. 
+
+### 'new player'
+
+A new player has joined the room
+
+**data**
+```
+ {
+   matchStatus: match.status
+ }
+```
+
+### 'started'
+
+A match that the client is connected just started
+
+**data**
+
+```
+  {
+    matchId: matchId,
+    currentNumber: match.currentNumber,
+    matchStatus: match.status,
+    whosTurn: matchNextPlayer
+  }
+```
+
+### 'operation'
+
+A new operation was made
+
+**data**
+
+```
+  {
+    whosTurn: matchNextPlayer,
+    currentNumber: match.currentNumber,
+    log: MatchLog
+  }
+```
+
+### 'end'
+
+The Match has ended
+
+**data**
+
+```
+  {
+    whosTurn: matchNextPlayer,
+    currentNumber: match.currentNumber,
+    log: MatchLog,
+    winner: winnerOfTheMatch
+  }
+```
+
+### 'disconnect'
+
+Connection got disconnected
 
 ## TODOs
