@@ -14,8 +14,13 @@ This repo has an implementation of the Game of Three, and it exposes it through 
 
 [DEMO](https://user-images.githubusercontent.com/6784789/218100366-16e8f203-c07d-4dce-bb9c-1a6a78bc968a.webm)
 
+## Match
 
-## Match 
+A Match is a representation to a match between two players.
+
+A Match has the following statuses which represents its state. 
+
+
 
 ## Endpoints
 
